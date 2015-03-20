@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 String markerLat = String.valueOf(markerLatlng.latitude);
                 String markerLng = String.valueOf(markerLatlng.longitude);
                 Log.i(classtag, "exported latlng: "+markerLat+" "+markerLng);
-                prompt = new PromptDialogFragment();
+                prompt = new PromptDialogFragment().newInstance(markerLat, markerLng);
 
                 prompt.show(getFragmentManager(), "markerLocation");
             }
