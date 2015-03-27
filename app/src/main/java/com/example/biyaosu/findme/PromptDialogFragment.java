@@ -80,11 +80,7 @@ public class PromptDialogFragment extends DialogFragment {
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("message/rfc822");
                 i.putExtra(Intent.EXTRA_SUBJECT, "I'm here!");
-                //String body = "Hi There, this is my current location, click it to open: "+
-                  //      "<a href='geo:"+lat+","+lng+";u=35'>I am here</a>";
-                String link_val = "geo:"+lat+","+lng;
-                String content = "I am here!";
-                String body = "<a href=\"" + link_val + "\">" + link_val+ "</a>";
+                String body = "<a href='http://maps.google.com/maps?daddr="+lat+","+lng+"'>Take me there!</a>";
                 i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(body));
                 try {
                     startActivity(Intent.createChooser(i, "Send mail..."));
