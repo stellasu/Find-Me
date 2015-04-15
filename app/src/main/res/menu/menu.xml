@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:FindMe="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/actionbar_yelp"
+        android:orderInCategory="100"
+        android:title="@string/yelp"
+        android:icon="@drawable/ic_action_overflow"
+        FindMe:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/actionbar_help"
+        android:orderInCategory="100"
+        android:title="@string/help"
+        android:icon="@drawable/ic_action_help"
+        FindMe:showAsAction="ifRoom|withText"/>
+</menu>

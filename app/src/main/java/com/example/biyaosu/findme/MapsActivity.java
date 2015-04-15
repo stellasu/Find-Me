@@ -9,6 +9,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.net.Uri;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +30,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     double lng = 0;
     PromptDialogFragment prompt;
     String classtag = MapsActivity.class.getName();
+    YelpAPI yelpAPI = new YelpAPI();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +55,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             lat = location.getLatitude();
             lng = location.getLongitude();
         }
-        Log.i(classtag, "onCreate lat: "+lat+" lng: "+lng);
+        Log.i(classtag, "onCreate lat: " + lat + " lng: " + lng);
 
         setUpMapIfNeeded();
+
     }
 
     @Override
@@ -132,6 +137,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 4.0f));
+
+        Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
     }
 
     @Override
@@ -161,6 +179,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     public void onFragmentInteraction(Uri uri){
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId()){
+            case R.id.actionbar_yelp:
+                Log.i(classtag, "display yelp locations");
+                return true;
+            case R.id.actionbar_help:
+                Log.i(classtag, "help");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }
