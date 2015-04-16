@@ -20,6 +20,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -31,6 +34,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     PromptDialogFragment prompt;
     String classtag = MapsActivity.class.getName();
     YelpAPI yelpAPI = new YelpAPI();
+    ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,11 +142,32 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         });
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 4.0f));
 
+    }
+
+    private void setUpMapWithYelpLocation()
+    {
+        Log.i(classtag, "setUpMapWithYelpLocation lat: "+lat+" lng: "+lng);
+        LatLng latlng = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().position(latlng).title("I'm here").snippet("Click to export your location"));
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                LatLng markerLatlng = marker.getPosition();
+                String markerLat = String.valueOf(markerLatlng.latitude);
+                String markerLng = String.valueOf(markerLatlng.longitude);
+                Log.i(classtag, "exported latlng: "+markerLat+" "+markerLng);
+                prompt = new PromptDialogFragment().newInstance(markerLat, markerLng);
+
+                prompt.show(getFragmentManager(), "markerLocation");
+            }
+        });
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 4.0f));
+
         Thread thread = new Thread(new Runnable(){
             @Override
             public void run() {
                 try {
-                    yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
+                    yelpList = yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -195,6 +220,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         switch(item.getItemId()){
             case R.id.actionbar_yelp:
                 Log.i(classtag, "display yelp locations");
+                setUpMapWithYelpLocation();
                 return true;
             case R.id.actionbar_help:
                 Log.i(classtag, "help");

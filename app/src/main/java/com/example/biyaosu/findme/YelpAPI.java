@@ -1,9 +1,9 @@
 package com.example.biyaosu.findme;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -15,6 +15,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 import android.util.Log;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * Code sample for accessing the Yelp API V2.
@@ -36,7 +38,6 @@ public class YelpAPI {
     private static final String DEFAULT_LOCATION = "San Francisco, CA";
     private static final int SEARCH_LIMIT = 10;
     private static final String SEARCH_PATH = "/v2/search";
-    private static final String BUSINESS_PATH = "/v2/business";
 
     /*
      * Update OAuth credentials below from the Yelp Developers API site:
@@ -55,7 +56,8 @@ public class YelpAPI {
     /**
      * Setup the Yelp API OAuth credentials.
      */
-    public YelpAPI() {
+    public YelpAPI()
+    {
         this.service =
                 new ServiceBuilder().provider(TwoStepOAuth.class).apiKey(CONSUMER_KEY)
                         .apiSecret(CONSUMER_SECRET).build();
@@ -72,24 +74,11 @@ public class YelpAPI {
      * @param lng <tt>String</tt> of the longitude
      * @return <tt>String</tt> JSON Response
      */
-    public String searchForBusinessesByLocation(String lat, String lng) {
+    public String searchForBusinessesByLocation(String lat, String lng)
+    {
         OAuthRequest request = createOAuthRequest(SEARCH_PATH);
         request.addQuerystringParameter("ll", lat+","+lng);
         request.addQuerystringParameter("limit", String.valueOf(SEARCH_LIMIT));
-        return sendRequestAndGetResponse(request);
-    }
-
-    /**
-     * Creates and sends a request to the Business API by business ID.
-     * <p>
-     * See <a href="http://www.yelp.com/developers/documentation/v2/business">Yelp Business API V2</a>
-     * for more info.
-     *
-     * @param businessID <tt>String</tt> business ID of the requested business
-     * @return <tt>String</tt> JSON Response
-     */
-    public String searchByBusinessId(String businessID) {
-        OAuthRequest request = createOAuthRequest(BUSINESS_PATH + "/" + businessID);
         return sendRequestAndGetResponse(request);
     }
 
@@ -99,7 +88,8 @@ public class YelpAPI {
      * @param path API endpoint to be queried
      * @return <tt>OAuthRequest</tt>
      */
-    private OAuthRequest createOAuthRequest(String path) {
+    private OAuthRequest createOAuthRequest(String path)
+    {
         OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + API_HOST + path);
         return request;
     }
@@ -110,7 +100,8 @@ public class YelpAPI {
      * @param request {@link OAuthRequest} corresponding to the API request
      * @return <tt>String</tt> body of API response
      */
-    private String sendRequestAndGetResponse(OAuthRequest request) {
+    private String sendRequestAndGetResponse(OAuthRequest request)
+    {
         Log.i(classtag, "Querying " + request.getCompleteUrl() + " ...");
         this.service.signRequest(this.accessToken, request);
         Log.i(classtag, "request: "+request.toString());
@@ -126,31 +117,43 @@ public class YelpAPI {
      * @param lat <tt>String</tt> of the latitude
      * @param lng <tt>String</tt> of the longitude
      */
-    public void queryAPI(String lat, String lng) {
+    public ArrayList<HashMap<String, String>> queryAPI(String lat, String lng)
+    {
+        ArrayList<HashMap<String, String>> list = new ArrayList<>();
+
         String searchResponseJSON =
                 searchForBusinessesByLocation(lat, lng);
+        Log.i(classtag, "searchResponseJson: "+searchResponseJSON);
 
-        JSONParser parser = new JSONParser();
         JSONObject response = null;
         try {
-            response = (JSONObject) parser.parse(searchResponseJSON);
-        } catch (ParseException pe) {
+            response = new JSONObject(searchResponseJSON);
+            JSONArray businesses = response.optJSONArray("businesses");
+            int number = businesses.length();
+            for(int i=0; i<number; i++){
+                HashMap<String, String> map = new HashMap<>();
+                JSONObject business = (JSONObject)businesses.opt(i);
+                String name = business.optString("name");
+                String url = business.optString("url");
+                String snippet = business.optString("snippet_image_url");
+                JSONObject location = business.optJSONObject("location");
+                JSONObject coordinate = location.optJSONObject("coordinate");
+                String businessLat = String.valueOf(coordinate.opt("latitude"));
+                String businessLng = String.valueOf(coordinate.opt("longitude"));
+                map.put("name", name);
+                map.put("url", url);
+                map.put("snippet", snippet);
+                map.put("businessLat", businessLat);
+                map.put("businessLng", businessLng);
+                list.add(map);
+            }
+        } catch (JSONException e) {
             System.out.println("Error: could not parse JSON response:");
             System.out.println(searchResponseJSON);
             System.exit(1);
         }
 
-        JSONArray businesses = (JSONArray) response.get("businesses");
-        JSONObject firstBusiness = (JSONObject) businesses.get(0);
-        String firstBusinessID = firstBusiness.get("id").toString();
-        System.out.println(String.format(
-                "%s businesses found, querying business info for the top result \"%s\" ...",
-                businesses.size(), firstBusinessID));
-
-        // Select the first business and display business details
-        String businessResponseJSON = searchByBusinessId(firstBusinessID.toString());
-        System.out.println(String.format("Result for business \"%s\" found:", firstBusinessID));
-        System.out.println(businessResponseJSON);
+        return list;
     }
 
 
