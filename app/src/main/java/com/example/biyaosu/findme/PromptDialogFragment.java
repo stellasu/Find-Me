@@ -79,7 +79,7 @@ public class PromptDialogFragment extends DialogFragment {
                 Log.i(classtag, "send Email "+lat+" "+lng);
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("message/rfc822");
-                i.putExtra(Intent.EXTRA_SUBJECT, "I'm here!");
+                i.putExtra(Intent.EXTRA_SUBJECT, "Find me here!");
                 String body = "<a href='http://maps.google.com/maps?daddr="+lat+","+lng+"'>Take me there!</a>";
                 i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(body));
                 try {

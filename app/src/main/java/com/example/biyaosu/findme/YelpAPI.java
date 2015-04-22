@@ -17,6 +17,7 @@ import com.beust.jcommander.Parameter;
 import android.util.Log;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Code sample for accessing the Yelp API V2.

@@ -6,7 +6,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-    <string name="yelp">Display Yelp Locations</string>
+    <string name="yelp">Meet In Yelp Businesses</string>
+    <string name="display_yelp">Display Yelp Locations</string>
+    <string name="clear_yelp">Clear Yelp Locations</string>
     <string name="help">Help</string>
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

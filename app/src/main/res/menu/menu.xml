@@ -3,8 +3,14 @@
     <item android:id="@+id/actionbar_yelp"
         android:orderInCategory="100"
         android:title="@string/yelp"
-        android:icon="@drawable/ic_action_overflow"
-        FindMe:showAsAction="ifRoom|withText"/>
+        FindMe:showAsAction="ifRoom|withText">
+        <menu>
+            <item android:id="@+id/display_yelp"
+                android:title="@string/display_yelp" />
+            <item android:id="@+id/clear_yelp"
+                android:title="@string/clear_yelp" />
+        </menu>
+    </item>
     <item android:id="@+id/actionbar_help"
         android:orderInCategory="100"
         android:title="@string/help"
