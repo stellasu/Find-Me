@@ -38,6 +38,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     YelpAPI yelpAPI = new YelpAPI();
     ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
     private float zoomLevel = 4.0f;
+    private Marker currentLocationMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +131,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void setUpMap() {
         Log.i(classtag, "setUpMap lat: "+lat+" lng: "+lng);
         LatLng latlng = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions()
+        if(currentLocationMarker != null){
+            currentLocationMarker.remove();
+        }
+        currentLocationMarker = mMap.addMarker(new MarkerOptions()
                 .position(latlng)
                 .title("I'm here")
                 .snippet("Click to export your location")
@@ -156,10 +160,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     {
         Log.i(classtag, "setUpMapWithYelpLocation lat: "+lat+" lng: "+lng);
         LatLng latlng = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions()
-                .position(latlng)
-                .title("I'm here")
-                .snippet("Click to export your location"));
+        if(currentLocationMarker != null){
+            currentLocationMarker.remove();
+        }
+        currentLocationMarker = mMap.addMarker(new MarkerOptions()
+                        .position(latlng)
+                        .title("I'm here")
+                        .snippet("Click to export your location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+        );
 
         Thread thread = new Thread(new Runnable(){
             @Override
