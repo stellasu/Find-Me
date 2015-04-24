@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.UiSettings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,15 +31,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LocationManager mLocationManager;
     private Location location;
-    String provider;
-    double lat = 0;
-    double lng = 0;
+    private String provider;
+    private double lat = 0;
+    private double lng = 0;
+    private LatLng currentLatLng = null;
     PromptDialogFragment prompt;
     String classtag = MapsActivity.class.getName();
     YelpAPI yelpAPI = new YelpAPI();
-    ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
-    private float zoomLevel = 4.0f;
+    private ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
+    private float zoomLevel = 10.0f;
     private Marker currentLocationMarker = null;
+    private Marker droppedPin = null;
+    private UiSettings uiSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +62,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
         if(location != null)
         {
-            //lat = (int) (location.getLatitude() * 1E6);
-            //lng = (int) (location.getLongitude() * 1E6);
             lat = location.getLatitude();
             lng = location.getLongitude();
         }
@@ -115,11 +117,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
             }
         }
+
+        //add the drop pin function here
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng clickedLatLng) {
+                if(droppedPin != null){
+                    droppedPin.remove();
+                }
+                droppedPin = mMap.addMarker(new MarkerOptions()
+                        .title("Destination")
+                        .position(clickedLatLng)
+                        .snippet("Click to export this destination")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                );
+            }
+        });
+
     }
 
     /**
@@ -128,14 +148,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
-    private void setUpMap() {
+    private void setUpMap()
+    {
         Log.i(classtag, "setUpMap lat: "+lat+" lng: "+lng);
-        LatLng latlng = new LatLng(lat, lng);
+        currentLatLng = new LatLng(lat, lng);
         if(currentLocationMarker != null){
             currentLocationMarker.remove();
         }
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(latlng)
+                .position(currentLatLng)
                 .title("I'm here")
                 .snippet("Click to export your location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
@@ -152,23 +173,31 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 prompt.show(getFragmentManager(), "markerLocation");
             }
         });
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
 
+        if(droppedPin != null){
+            droppedPin = mMap.addMarker(new MarkerOptions()
+                            .title("Destination")
+                            .position(droppedPin.getPosition())
+                            .snippet("Click to export this destination")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+            );
+        }
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoomLevel));
+        mMap.setMyLocationEnabled(true);
+
+        //add google map options
+        uiSettings = mMap.getUiSettings();
+        uiSettings.setMyLocationButtonEnabled(true);
+        uiSettings.setZoomControlsEnabled(true);
+        uiSettings.setMapToolbarEnabled(true);
     }
 
+
+    //add yelp business markers to the map
     private void setUpMapWithYelpLocation()
     {
         Log.i(classtag, "setUpMapWithYelpLocation lat: "+lat+" lng: "+lng);
-        LatLng latlng = new LatLng(lat, lng);
-        if(currentLocationMarker != null){
-            currentLocationMarker.remove();
-        }
-        currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                        .position(latlng)
-                        .title("I'm here")
-                        .snippet("Click to export your location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-        );
+        setUpMap();
 
         Thread thread = new Thread(new Runnable(){
             @Override
@@ -207,20 +236,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 Log.i(classtag, "Exception: "+e.getMessage());
             }
         }
-
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                LatLng markerLatlng = marker.getPosition();
-                String markerLat = String.valueOf(markerLatlng.latitude);
-                String markerLng = String.valueOf(markerLatlng.longitude);
-                Log.i(classtag, "exported latlng: "+markerLat+" "+markerLng);
-                prompt = new PromptDialogFragment().newInstance(markerLat, markerLng);
-
-                prompt.show(getFragmentManager(), "markerLocation");
-            }
-        });
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoomLevel));
     }
 
     @Override
@@ -270,9 +286,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 return true;
             case R.id.clear_yelp:
                 Log.i(classtag, "clear yelp locations");
-                mMap.clear();
-                zoomLevel = 4.0f;
-                setUpMap();
+                clearYelpMarkers();
                 return true;
             case R.id.actionbar_help:
                 Log.i(classtag, "help");
@@ -280,6 +294,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    //clear all yelp markers, leave currentLocationMarker and droppedPin
+    public void clearYelpMarkers()
+    {
+        Log.i(classtag, "clearYelpMarkers");
+        mMap.clear();
+        zoomLevel = 10.0f;
+        setUpMap();
     }
 
 }
