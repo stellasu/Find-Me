@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,10 +135,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     droppedPin.remove();
                 }
                 droppedPin = mMap.addMarker(new MarkerOptions()
-                        .title("Destination")
-                        .position(clickedLatLng)
-                        .snippet("Click to export this destination")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                                //.title("Destination")
+                                .position(clickedLatLng)
+                                        //.snippet("Click to export this destination")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
                 );
             }
         });
@@ -157,10 +160,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
                 .position(currentLatLng)
-                .title("I'm here")
-                .snippet("Click to export your location")
+                //.title("I'm here")
+                //.snippet("Click to export your location")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
         );
+
+        mMap.setInfoWindowAdapter(new CustomizedInfoWindow());
+
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -176,9 +182,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         if(droppedPin != null){
             droppedPin = mMap.addMarker(new MarkerOptions()
-                            .title("Destination")
+                            //.title("Destination")
                             .position(droppedPin.getPosition())
-                            .snippet("Click to export this destination")
+                                    //.snippet("Click to export this destination")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
             );
         }
@@ -229,9 +235,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 String businessName = String.valueOf(map.get("name"));
                 LatLng businessLatLng = new LatLng(Double.parseDouble(businessLat), Double.parseDouble(businessLng));
                 mMap.addMarker(new MarkerOptions()
-                        .position(businessLatLng)
-                        .title(businessName)
-                        .snippet("Click to export business location"));
+                        //.title(businessName)
+                        //.snippet("Click to export business location")
+                        .position(businessLatLng));
             }catch (Exception e){
                 Log.i(classtag, "Exception: "+e.getMessage());
             }
@@ -303,6 +309,35 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap.clear();
         zoomLevel = 10.0f;
         setUpMap();
+    }
+
+    public class CustomizedInfoWindow implements InfoWindowAdapter
+    {
+        public CustomizedInfoWindow () {}
+
+        @Override
+        public View getInfoWindow (Marker marker)
+        {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents (Marker marker)
+        {
+            LatLng infowindowLatLng = marker.getPosition();
+            String infowindowLat = String.valueOf(infowindowLatLng.latitude);
+            String infowindowLng = String.valueOf(infowindowLatLng.longitude);
+
+            View infowindowView = getLayoutInflater().inflate(
+                    R.layout.infowindow, null);
+            TextView infowindow_lat = ((TextView)infowindowView
+                    .findViewById(R.id.infowindow_lat));
+            infowindow_lat.setText(infowindowLat);
+            TextView infowindow_lng = ((TextView) infowindowView
+                    .findViewById(R.id.infowindow_lng));
+            infowindow_lng.setText(infowindowLng);
+            return infowindowView;
+        }
     }
 
 }
