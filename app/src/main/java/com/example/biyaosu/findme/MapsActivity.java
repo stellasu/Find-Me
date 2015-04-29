@@ -1,6 +1,8 @@
 package com.example.biyaosu.findme;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,6 +31,9 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.io.InputStream;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener {
 
@@ -46,6 +52,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Marker currentLocationMarker = null;
     private Marker droppedPin = null;
     private UiSettings uiSettings;
+    private HashMap<Marker, HashMap<String, String>> markerMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +142,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     droppedPin.remove();
                 }
                 droppedPin = mMap.addMarker(new MarkerOptions()
-                                //.title("Destination")
+                                .title("Destination")
                                 .position(clickedLatLng)
-                                        //.snippet("Click to export this destination")
+                                .snippet("Click to export this destination")
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
                 );
             }
@@ -159,10 +166,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             currentLocationMarker.remove();
         }
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(currentLatLng)
-                //.title("I'm here")
-                //.snippet("Click to export your location")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .title("You are here")
+                        .position(currentLatLng)
+                        .snippet("Click to export your location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
         );
 
         mMap.setInfoWindowAdapter(new CustomizedInfoWindow());
@@ -182,9 +189,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         if(droppedPin != null){
             droppedPin = mMap.addMarker(new MarkerOptions()
-                            //.title("Destination")
+                            .title("Destination")
                             .position(droppedPin.getPosition())
-                                    //.snippet("Click to export this destination")
+                            .snippet("Click to export this destination")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
             );
         }
@@ -234,10 +241,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 String businessLng = String.valueOf(map.get("businessLng"));
                 String businessName = String.valueOf(map.get("name"));
                 LatLng businessLatLng = new LatLng(Double.parseDouble(businessLat), Double.parseDouble(businessLng));
-                mMap.addMarker(new MarkerOptions()
-                        //.title(businessName)
-                        //.snippet("Click to export business location")
+                Marker yelpMarker = mMap.addMarker(new MarkerOptions()
                         .position(businessLatLng));
+                markerMap.put(yelpMarker, map);
             }catch (Exception e){
                 Log.i(classtag, "Exception: "+e.getMessage());
             }
@@ -307,6 +313,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     {
         Log.i(classtag, "clearYelpMarkers");
         mMap.clear();
+        markerMap.clear();
         zoomLevel = 10.0f;
         setUpMap();
     }
@@ -324,19 +331,46 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         @Override
         public View getInfoContents (Marker marker)
         {
-            LatLng infowindowLatLng = marker.getPosition();
-            String infowindowLat = String.valueOf(infowindowLatLng.latitude);
-            String infowindowLng = String.valueOf(infowindowLatLng.longitude);
+            if(markerMap.containsKey(marker)){
+                HashMap<String, String> map = markerMap.get(marker);
+                String business_name = map.get("name");
+                String business_snippet = map.get("snippet");
+                String business_introduction = "Click to export address";
 
-            View infowindowView = getLayoutInflater().inflate(
-                    R.layout.infowindow, null);
-            TextView infowindow_lat = ((TextView)infowindowView
-                    .findViewById(R.id.infowindow_lat));
-            infowindow_lat.setText(infowindowLat);
-            TextView infowindow_lng = ((TextView) infowindowView
-                    .findViewById(R.id.infowindow_lng));
-            infowindow_lng.setText(infowindowLng);
-            return infowindowView;
+                View infowindowView = getLayoutInflater().inflate(
+                        R.layout.infowindow, null);
+                TextView businessName = ((TextView)infowindowView
+                        .findViewById(R.id.businessName));
+                businessName.setText(business_name);
+                TextView businessIntroduction = ((TextView) infowindowView
+                        .findViewById(R.id.introduction));
+                businessIntroduction.setText(business_introduction);
+                ImageView businessSnippet = ((ImageView)infowindowView
+                        .findViewById(R.id.snippet));
+                Bitmap snippetBitmap = getBitmapFromURL(business_snippet);
+                businessSnippet.setImageBitmap(snippetBitmap);
+
+                return infowindowView;
+            }else{
+                return null;
+            }
+
+        }
+    }
+
+    public Bitmap getBitmapFromURL(String src)
+    {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (Exception e) {
+            Log.i(classtag, "getBitmapFromURL exception: "+e.getMessage());
+            return null;
         }
     }
 
