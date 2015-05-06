@@ -1,12 +1,14 @@
 package com.example.biyaosu.findme;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,9 +50,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     String classtag = MapsActivity.class.getName();
     YelpAPI yelpAPI = new YelpAPI();
     private ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
+    private boolean hasYelpData = false;
     private float zoomLevel = 10.0f;
     private Marker currentLocationMarker = null;
+    private boolean hasDroppedPin = false;
     private Marker droppedPin = null;
+    private double droppedLat = 0;
+    private double droppedLng = 0;
     private UiSettings uiSettings;
     private HashMap<Marker, HashMap<String, String>> markerMap = new HashMap<>();
 
@@ -77,12 +83,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
         Log.i(classtag, "onCreate lat: " + lat + " lng: " + lng);
 
-        setUpMapIfNeeded();
-
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
+        Log.i(classtag, "onResume");
         super.onResume();
 
         if(provider != null)
@@ -101,8 +107,35 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause()
+    {
         super.onPause();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState)
+    {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putDouble("lat", lat);
+        savedInstanceState.putDouble("lng", lng);
+        savedInstanceState.putDouble("droppedLat", droppedLat);
+        savedInstanceState.putDouble("droppedLng", droppedLng);
+        savedInstanceState.putBoolean("hasDroppedPin", hasDroppedPin);
+        savedInstanceState.putBoolean("hasYelpData", hasYelpData);
+        savedInstanceState.putFloat("zoomLevel", zoomLevel);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+        lat = savedInstanceState.getDouble("lat");
+        lng = savedInstanceState.getDouble("lng");
+        droppedLat = savedInstanceState.getDouble("droppedLat");
+        droppedLng = savedInstanceState.getDouble("droppedLng");
+        hasDroppedPin = savedInstanceState.getBoolean("hasDroppedPin");
+        hasYelpData = savedInstanceState.getBoolean("hasYelpData");
+        zoomLevel = savedInstanceState.getFloat("zoomLevel");
     }
 
     /**
@@ -130,7 +163,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+                if(hasYelpData){
+                    setUpMapWithYelpLocation();
+                }else{
+                    setUpMap();
+                }
             }
         }
 
@@ -138,6 +175,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng clickedLatLng) {
+                hasDroppedPin = true;
                 if(droppedPin != null){
                     droppedPin.remove();
                 }
@@ -147,6 +185,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                                 .snippet("Click to export this destination")
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
                 );
+                droppedLat = clickedLatLng.latitude;
+                droppedLng = clickedLatLng.longitude;
             }
         });
 
@@ -187,14 +227,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
 
-        if(droppedPin != null){
-            droppedPin = mMap.addMarker(new MarkerOptions()
-                            .title("Destination")
-                            .position(droppedPin.getPosition())
-                            .snippet("Click to export this destination")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-            );
+        if(hasDroppedPin){
+            if(droppedPin != null){
+                droppedPin = mMap.addMarker(new MarkerOptions()
+                                .title("Destination")
+                                .position(droppedPin.getPosition())
+                                .snippet("Click to export this destination")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                );
+            }else{
+                droppedPin = mMap.addMarker(new MarkerOptions()
+                                .title("Destination")
+                                .position(new LatLng(droppedLat, droppedLng))
+                                .snippet("Click to export this destination")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                );
+            }
         }
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoomLevel));
         mMap.setMyLocationEnabled(true);
 
@@ -211,23 +261,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     {
         Log.i(classtag, "setUpMapWithYelpLocation lat: "+lat+" lng: "+lng);
         setUpMap();
-
-        Thread thread = new Thread(new Runnable(){
-            @Override
-            public void run() {
-                try {
-                    yelpList = yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if(hasYelpData && yelpList.isEmpty()){
+            Thread thread = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        yelpList = yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
 
-        thread.start();
-        try{
-            thread.join();
-        } catch (InterruptedException e){
-            e.printStackTrace();
+            thread.start();
+            try{
+                thread.join();
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
         }
 
         Iterator<HashMap<String, String>> it = yelpList.iterator();
@@ -294,10 +345,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         switch(item.getItemId()){
             case R.id.display_yelp:
                 Log.i(classtag, "display yelp locations");
+                hasYelpData = true;
                 setUpMapWithYelpLocation();
                 return true;
             case R.id.clear_yelp:
                 Log.i(classtag, "clear yelp locations");
+                hasYelpData = false;
                 clearYelpMarkers();
                 return true;
             case R.id.actionbar_help:
@@ -314,6 +367,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Log.i(classtag, "clearYelpMarkers");
         mMap.clear();
         markerMap.clear();
+        yelpList.clear();
         zoomLevel = 10.0f;
         setUpMap();
     }
@@ -347,8 +401,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 businessIntroduction.setText(business_introduction);
                 ImageView businessSnippet = ((ImageView)infowindowView
                         .findViewById(R.id.snippet));
-                Bitmap snippetBitmap = getBitmapFromURL(business_snippet);
-                businessSnippet.setImageBitmap(snippetBitmap);
+                new DownloadImageTask(businessSnippet).execute(business_snippet);
 
                 return infowindowView;
             }else{
@@ -358,9 +411,33 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
     }
 
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap>
+    {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage)
+        {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls)
+        {
+            Bitmap bMap = null;
+            String url = urls[0];
+            bMap = getBitmapFromURL(url);
+            return bMap;
+        }
+
+        protected void onPostExecute(Bitmap result)
+        {
+            bmImage.setImageBitmap(result);
+        }
+    }
+
     public Bitmap getBitmapFromURL(String src)
     {
         try {
+            Log.i(classtag, "image url: "+src);
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -369,7 +446,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Bitmap myBitmap = BitmapFactory.decodeStream(input);
             return myBitmap;
         } catch (Exception e) {
-            Log.i(classtag, "getBitmapFromURL exception: "+e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
