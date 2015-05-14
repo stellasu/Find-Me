@@ -11,6 +11,12 @@
                 android:title="@string/clear_yelp" />
         </menu>
     </item>
+    <item android:id="@+id/removeDropped"
+        android:orderInCategory="100"
+        android:title="Remove Dropped Pin"
+        FindMe:showAsAction="ifRoom|withText">
+    </item>
+
     <item android:id="@+id/actionbar_help"
         android:orderInCategory="100"
         android:title="@string/help"

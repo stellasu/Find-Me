@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.os.Environment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,12 +31,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener {
 
@@ -51,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     YelpAPI yelpAPI = new YelpAPI();
     private ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
     private boolean hasYelpData = false;
-    private float zoomLevel = 10.0f;
+    private float zoomLevel = 12.0f;
     private Marker currentLocationMarker = null;
     private boolean hasDroppedPin = false;
     private Marker droppedPin = null;
@@ -163,33 +168,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                if(hasYelpData){
-                    setUpMapWithYelpLocation();
-                }else{
-                    setUpMap();
-                }
+                setUpMap();
             }
         }
-
-        //add the drop pin function here
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng clickedLatLng) {
-                hasDroppedPin = true;
-                if(droppedPin != null){
-                    droppedPin.remove();
-                }
-                droppedPin = mMap.addMarker(new MarkerOptions()
-                                .title("Destination")
-                                .position(clickedLatLng)
-                                .snippet("Click to export this destination")
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-                );
-                droppedLat = clickedLatLng.latitude;
-                droppedLng = clickedLatLng.longitude;
-            }
-        });
-
     }
 
     /**
@@ -201,6 +182,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void setUpMap()
     {
         Log.i(classtag, "setUpMap lat: "+lat+" lng: "+lng);
+        mMap.clear();
         currentLatLng = new LatLng(lat, lng);
         if(currentLocationMarker != null){
             currentLocationMarker.remove();
@@ -228,7 +210,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         });
 
         if(hasDroppedPin){
+            Log.i(classtag, "hasDroppedPin true");
             if(droppedPin != null){
+                Log.i(classtag, "droppedPin not null");
                 droppedPin = mMap.addMarker(new MarkerOptions()
                                 .title("Destination")
                                 .position(droppedPin.getPosition())
@@ -245,7 +229,67 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoomLevel));
+        //add the drop pin function here
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng clickedLatLng) {
+                Log.i(classtag, "setOnMapLongClickListener");
+                hasDroppedPin = true;
+                if(droppedPin != null){
+                    Log.i(classtag, "droppedPin not null");
+                    droppedPin.remove();
+                }
+                droppedPin = mMap.addMarker(new MarkerOptions()
+                                .title("Destination")
+                                .position(clickedLatLng)
+                                .snippet("Click to export this destination")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                );
+                droppedLat = clickedLatLng.latitude;
+                droppedLng = clickedLatLng.longitude;
+            }
+        });
+
+        if(hasYelpData && yelpList.isEmpty()){
+            Thread thread = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        yelpList = yelpAPI.queryAPI(String.valueOf(lat), String.valueOf(lng));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            thread.start();
+            try{
+                thread.join();
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+
+        Iterator<HashMap<String, String>> it = yelpList.iterator();
+        if(it.hasNext()){
+            zoomLevel = 14.0f;
+        }
+        while(it.hasNext()){
+            HashMap map = it.next();
+            try{
+                String businessLat = String.valueOf(map.get("businessLat"));
+                String businessLng = String.valueOf(map.get("businessLng"));
+                String businessName = String.valueOf(map.get("name"));
+                LatLng businessLatLng = new LatLng(Double.parseDouble(businessLat), Double.parseDouble(businessLng));
+                Marker yelpMarker = mMap.addMarker(new MarkerOptions()
+                        .position(businessLatLng));
+                markerMap.put(yelpMarker, map);
+            }catch (Exception e){
+                Log.i(classtag, "Exception: "+e.getMessage());
+            }
+        }
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoomLevel));
         mMap.setMyLocationEnabled(true);
 
         //add google map options
@@ -353,6 +397,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 hasYelpData = false;
                 clearYelpMarkers();
                 return true;
+            case R.id.removeDropped:
+                Log.i(classtag, "remove dropped pin");
+                removeDroppedPin();
+                return true;
             case R.id.actionbar_help:
                 Log.i(classtag, "help");
                 return true;
@@ -368,8 +416,20 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap.clear();
         markerMap.clear();
         yelpList.clear();
-        zoomLevel = 10.0f;
+        zoomLevel = 12.0f;
         setUpMap();
+    }
+
+    //remove dropped pin
+    public void removeDroppedPin()
+    {
+        Log.i(classtag, "removeDroppedPin");
+        hasDroppedPin = false;
+        if(droppedPin != null){
+            Log.i(classtag, "droppedPin not null");
+            droppedPin.remove();
+            droppedPin = null;
+        }
     }
 
     public class CustomizedInfoWindow implements InfoWindowAdapter
@@ -425,12 +485,20 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Bitmap bMap = null;
             String url = urls[0];
             bMap = getBitmapFromURL(url);
+            if(bMap == null){
+                Log.i(classtag, "no bMap");
+            }else{
+                Log.i(classtag, "has bMap");
+            }
             return bMap;
         }
 
         protected void onPostExecute(Bitmap result)
         {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            result.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
             bmImage.setImageBitmap(result);
+            saveImageToSD(result);
         }
     }
 
@@ -450,5 +518,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             return null;
         }
     }
+
+    private void saveImageToSD(Bitmap bmp)
+    {
+        Log.i(classtag, "saveImageToSD");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = Environment.getExternalStorageDirectory()
+                + File.separator + System.currentTimeMillis() + "downloaded.jpg";
+        Log.i(classtag, "path: "+path);
+        File file = new File(path);
+        try {
+            file.createNewFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bytes.toByteArray());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
