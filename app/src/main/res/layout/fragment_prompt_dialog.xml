@@ -5,12 +5,34 @@
     android:padding="20dp"
     tools:context="com.example.biyaosu.findme.PromptDialogFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send By Email"
-        android:id="@+id/sendEmail"
-        android:layout_gravity="center|top" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="5dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send By Email"
+            android:id="@+id/sendEmail"
+            android:layout_gravity="center|top" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Route to this location"
+            android:id="@+id/route"
+            android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save this location"
+            android:id="@+id/saveLocation"
+            android:layout_gravity="center_horizontal"/>
+
+    </LinearLayout>
+
 
 </FrameLayout>

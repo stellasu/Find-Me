@@ -31,6 +31,8 @@ public class PromptDialogFragment extends DialogFragment {
     private String lat;
     private String lng;
     private Button emailBtn;
+    private Button routeBtn;
+    private Button saveBtn;
     String classtag = PromptDialogFragment.class.getName();
 
     private OnFragmentInteractionListener mListener;
@@ -73,6 +75,9 @@ public class PromptDialogFragment extends DialogFragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_prompt_dialog, container, false);
         emailBtn = (Button)v.findViewById(R.id.sendEmail);
+        routeBtn = (Button)v.findViewById(R.id.route);
+        saveBtn = (Button)v.findViewById(R.id.saveLocation);
+
         emailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,9 +92,30 @@ public class PromptDialogFragment extends DialogFragment {
                 } catch (android.content.ActivityNotFoundException ex) {
                     Log.i(classtag, "no email client installed");
                 }
+
             }
         });
-        getDialog().setTitle("Send Location");
+
+        routeBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "route");
+                Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?daddr="+lat+","+lng));
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.addCategory(Intent.CATEGORY_LAUNCHER);
+                i.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                startActivity(i);
+            }
+        });
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "save this location");
+            }
+        });
+
+        getDialog().setTitle("Use this location");
         return v;
 
     }

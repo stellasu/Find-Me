@@ -296,7 +296,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         uiSettings = mMap.getUiSettings();
         uiSettings.setMyLocationButtonEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
-        uiSettings.setMapToolbarEnabled(true);
     }
 
 
