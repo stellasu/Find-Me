@@ -21,7 +21,7 @@ import android.content.Intent;
  * Use the {@link PromptDialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PromptDialogFragment extends DialogFragment {
+public class PromptDialogFragment extends DialogFragment implements SaveLocationDialog.OnSaveLocationFragmentInteractionListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -33,6 +33,7 @@ public class PromptDialogFragment extends DialogFragment {
     private Button emailBtn;
     private Button routeBtn;
     private Button saveBtn;
+    private SaveLocationDialog saveLocationDialog;
     String classtag = PromptDialogFragment.class.getName();
 
     private OnFragmentInteractionListener mListener;
@@ -112,6 +113,8 @@ public class PromptDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 Log.i(classtag, "save this location");
+                saveLocationDialog = new SaveLocationDialog().newInstance(lat, lng);
+                saveLocationDialog.show(getFragmentManager(), "save location");
             }
         });
 
@@ -145,7 +148,6 @@ public class PromptDialogFragment extends DialogFragment {
     }
 
 
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -159,6 +161,10 @@ public class PromptDialogFragment extends DialogFragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    public void onSaveLocationFragmentInteraction(Uri uri){
+
     }
 
 

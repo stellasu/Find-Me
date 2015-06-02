@@ -11,11 +11,16 @@ import android.content.Intent;
 public class SplashActivity extends Activity {
 
     private final int SPLASH_DISPLAY_LENGTH = 5000;
+    private FMDataSource fmds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        //create database
+        fmds = new FMDataSource(this);
+        fmds.open();
 
         new Handler().postDelayed(new Runnable() {
             @Override

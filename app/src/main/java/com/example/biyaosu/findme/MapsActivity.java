@@ -42,7 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener, SaveLocationDialog.OnSaveLocationFragmentInteractionListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LocationManager mLocationManager;
@@ -371,6 +371,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     public void onFragmentInteraction(Uri uri){
+
+    }
+
+    public void onSaveLocationFragmentInteraction(Uri uri){
 
     }
 
