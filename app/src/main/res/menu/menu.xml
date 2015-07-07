@@ -13,10 +13,14 @@
     </item>
     <item android:id="@+id/removeDropped"
         android:orderInCategory="100"
-        android:title="Remove Dropped Pin"
+        android:title="@string/remove_dropped"
         FindMe:showAsAction="ifRoom|withText">
     </item>
-
+    <item android:id="@+id/savedLocations"
+        android:orderInCategory="100"
+        android:title="@string/saved_locations"
+        FindMe:showAsAction="ifRoom|withText">
+    </item>
     <item android:id="@+id/actionbar_help"
         android:orderInCategory="100"
         android:title="@string/help"

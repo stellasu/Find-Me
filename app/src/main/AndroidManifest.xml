@@ -38,6 +38,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SavedLocationActivity"
+            android:label="@string/title_activity_saved_location" >
+        </activity>
+        <provider
+            android:authorities="com.example.biyaosu.findme.DatabaseAccessUtility"
+            android:name="com.example.biyaosu.findme.DatabaseAccessUtility"
+            android:exported="true"
+            android:enabled="true"
+            android:multiprocess="true"/>
+
     </application>
 
 </manifest>

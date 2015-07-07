@@ -35,9 +35,8 @@ public class FMDataSource {
     public ArrayList<SavedLocation> listAllLocations(){
         Log.i(classtag, "listAllLocations");
         ArrayList<SavedLocation> locations = new ArrayList<SavedLocation>();
-        String query = "SELECT * FROM " + FMSQLiteHelper.TABLE_NAME;
-        Cursor cursor = db.rawQuery(query, null);
 
+        Cursor cursor = this.getAllRecords();
         SavedLocation location = null;
         if(cursor.moveToFirst()){
             do{
@@ -49,9 +48,38 @@ public class FMDataSource {
                 location.setUpdated(cursor.getLong(4)); //updated
                 location.setTop(cursor.getInt(5)); //top
                 locations.add(location);
+                Log.i(classtag, "id: "+cursor.getInt(0));
+                Log.i(classtag, "name: "+cursor.getString(1));
             }while(cursor.moveToNext());
         }
         return locations;
+    }
+
+    public Cursor getAllRecords(){
+        String query = "SELECT * FROM " + FMSQLiteHelper.TABLE_NAME;
+        Cursor cursor = db.rawQuery(query, null);
+        return cursor;
+    }
+
+    public Cursor getRecordsForList(){
+        /*
+        Cursor cursor = db.query(
+                FMSQLiteHelper.TABLE_NAME, // a. table
+                new String[]{FMSQLiteHelper.COLUMN_ID, FMSQLiteHelper.COLUMN_NAME}, // b. column names
+                null, // c. selections
+                null, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null // h. limit
+        );
+        */
+        //String query = "SELECT "+FMSQLiteHelper.COLUMN_ID+" AS _id, "+FMSQLiteHelper.COLUMN_NAME+" FROM " + FMSQLiteHelper.TABLE_NAME;
+
+        String query = "SELECT * FROM " + FMSQLiteHelper.TABLE_NAME;
+        Log.i(classtag, "query: "+query);
+        Cursor cursor = db.rawQuery(query, null);
+        return cursor;
     }
 
     public long saveLocation(SavedLocation location){
@@ -108,10 +136,10 @@ public class FMDataSource {
         return db.update(FMSQLiteHelper.TABLE_NAME, values, FMSQLiteHelper.COLUMN_ID + " = ?", new String[]{String.valueOf(location.getId())});
     }
 
-    public int deleteLocation(SavedLocation location){
+    public int deleteLocation(int id){
         Log.i(classtag, "deleteLocation");
         //return row affected or 0
-        return db.delete(FMSQLiteHelper.TABLE_NAME, FMSQLiteHelper.COLUMN_ID + " = ?", new String[]{String.valueOf(location.getId())});
+        return db.delete(FMSQLiteHelper.TABLE_NAME, FMSQLiteHelper.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
     }
 
     public int pushToTop(SavedLocation location){

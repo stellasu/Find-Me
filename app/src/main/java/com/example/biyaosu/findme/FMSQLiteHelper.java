@@ -16,7 +16,7 @@ public class FMSQLiteHelper extends SQLiteOpenHelper{
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "FMDB";
     protected static final String TABLE_NAME = "SavedLocations";
-    protected static final String COLUMN_ID = "id";
+    protected static final String COLUMN_ID = "_id";
     protected static final String COLUMN_NAME = "name";
     protected static final String COLUMN_LATITUDE = "latitude";
     protected static final String COLUMN_LONGITUDE = "longitude";

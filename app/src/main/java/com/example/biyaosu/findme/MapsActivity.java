@@ -1,7 +1,7 @@
 package com.example.biyaosu.findme;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
@@ -52,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private double lng = 0;
     private LatLng currentLatLng = null;
     PromptDialogFragment prompt;
-    String classtag = MapsActivity.class.getName();
     YelpAPI yelpAPI = new YelpAPI();
     private ArrayList<HashMap<String, String>> yelpList = new ArrayList<>();
     private boolean hasYelpData = false;
@@ -64,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private double droppedLng = 0;
     private UiSettings uiSettings;
     private HashMap<Marker, HashMap<String, String>> markerMap = new HashMap<>();
+    String classtag = MapsActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -404,6 +404,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 Log.i(classtag, "remove dropped pin");
                 removeDroppedPin();
                 return true;
+            case R.id.savedLocations:
+                Log.i(classtag, "see saved locations");
+                FMDataSource fmds = new FMDataSource(getApplicationContext());
+                fmds.open();
+                fmds.listAllLocations();
+                seeSavedLocations();
+                return true;
             case R.id.actionbar_help:
                 Log.i(classtag, "help");
                 return true;
@@ -543,6 +550,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void seeSavedLocations()
+    {
+        Intent i = new Intent(this, SavedLocationActivity.class);
+        startActivity(i);
     }
 
 
