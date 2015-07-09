@@ -1,6 +1,7 @@
 package com.example.biyaosu.findme;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -16,7 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 
-public class SavedLocationActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class SavedLocationActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, GetLocationRecordDialog.OnGetLocationRecordFragmentInteractionListener{
 
     private FMDataSource fmds;
     private ListView listView;
@@ -24,6 +25,8 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
     private SimpleCursorAdapter adapter;
     private CursorLoader cursorLoader;
     String classtag = SaveLocationDialog.class.getName();
+
+    GetLocationRecordDialog getLocationDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +50,13 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView v = (TextView)view.findViewById(R.id.recordId);
-                String recordId = v.getText().toString();
+                TextView v_id = (TextView)view.findViewById(R.id.recordId);
+                String recordId = v_id.getText().toString();
+                TextView v_name = (TextView)view.findViewById(R.id.recordName);
+                String locationName = v_name.getText().toString();
                 Log.i(classtag, "recordId: "+recordId);
+                getLocationDialog = new GetLocationRecordDialog().newInstance(recordId, locationName);
+                getLocationDialog.show(getFragmentManager(), "getLocationDialog");
             }
         });
     }
@@ -80,4 +87,8 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
 
     }
 
+    @Override
+    public void onGetLocationRecordFragmentInteraction(Uri uri) {
+
+    }
 }

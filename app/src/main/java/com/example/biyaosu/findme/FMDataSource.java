@@ -62,20 +62,6 @@ public class FMDataSource {
     }
 
     public Cursor getRecordsForList(){
-        /*
-        Cursor cursor = db.query(
-                FMSQLiteHelper.TABLE_NAME, // a. table
-                new String[]{FMSQLiteHelper.COLUMN_ID, FMSQLiteHelper.COLUMN_NAME}, // b. column names
-                null, // c. selections
-                null, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null // h. limit
-        );
-        */
-        //String query = "SELECT "+FMSQLiteHelper.COLUMN_ID+" AS _id, "+FMSQLiteHelper.COLUMN_NAME+" FROM " + FMSQLiteHelper.TABLE_NAME;
-
         String query = "SELECT * FROM " + FMSQLiteHelper.TABLE_NAME;
         Log.i(classtag, "query: "+query);
         Cursor cursor = db.rawQuery(query, null);
