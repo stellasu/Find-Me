@@ -87,7 +87,7 @@ public class FMDataSource {
         Cursor cursor = db.query(
                 FMSQLiteHelper.TABLE_NAME, // a. table
                 FMSQLiteHelper.COLUMNS, // b. column names
-                " id = ？", // c. selections
+                FMSQLiteHelper.COLUMN_ID + " =?", // c. selections
                 new String[]{String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having

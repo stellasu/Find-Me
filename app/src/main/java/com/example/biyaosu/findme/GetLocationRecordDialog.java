@@ -3,9 +3,11 @@ package com.example.biyaosu.findme;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,9 +37,11 @@ public class GetLocationRecordDialog extends DialogFragment {
     private Button enableEditBtn;
     private Button cancelEditBtn;
     private Button saveEditBtn;
-    private Button sendSavedLocationBtn;
+    private Button deleteRecordBtn;
+    private Button sendLocationBtn;
     Context context;
     private FMDataSource fmds;
+    private SavedLocation selectedLocation;
 
     String classtag = GetLocationRecordDialog.class.getName();
 
@@ -58,11 +62,13 @@ public class GetLocationRecordDialog extends DialogFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.i(classtag, "onCreate");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             recordId = getArguments().getString(ARG_RECORDID);
             recordName = getArguments().getString(ARG_RECORDNAME);
         }
+        selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
     }
 
     @Override
@@ -74,7 +80,8 @@ public class GetLocationRecordDialog extends DialogFragment {
         enableEditBtn = (Button)v.findViewById(R.id.enableEditButton);
         saveEditBtn = (Button)v.findViewById(R.id.saveEditNameButton);
         cancelEditBtn = (Button)v.findViewById(R.id.cancelEditNameButton);
-        sendSavedLocationBtn = (Button)v.findViewById(R.id.sendSavedLocationButton);
+        deleteRecordBtn = (Button)v.findViewById(R.id.deleteRecordButton);
+        sendLocationBtn = (Button)v.findViewById(R.id.sendSavedLocationButton);
         final View btnContainer = (View)v.findViewById(R.id.buttonContainer);
         savedLocationNameText.setText(recordName);
 
@@ -98,6 +105,52 @@ public class GetLocationRecordDialog extends DialogFragment {
             }
         });
 
+        //save new name
+        saveEditBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "saveEditBtn clicked");
+                String newName = savedLocationNameText.getText().toString();
+                if(selectedLocation == null){
+                    selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
+                }
+                selectedLocation.setName(newName);
+                fmds.updateLocation(selectedLocation);
+            }
+        });
+
+        //delete record
+        deleteRecordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "deleteRecordBtn clicked");
+                fmds.deleteLocation(Integer.valueOf(recordId));
+            }
+        });
+
+        //send this location
+        sendLocationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "sendLocationBtn clicked");
+                if(selectedLocation == null){
+                    selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
+                }
+                String lat = String.valueOf(selectedLocation.getLatitude());
+                String lng = String.valueOf(selectedLocation.getLongitude());
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("message/rfc822");
+                i.putExtra(Intent.EXTRA_SUBJECT, "Find me here!");
+                String body = "<a href='http://maps.google.com/maps?daddr="+lat+","+lng+"'>Take me there!</a>";
+                i.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(body));
+                try {
+                    startActivity(Intent.createChooser(i, "Send mail..."));
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Log.i(classtag, "no email client installed");
+                }
+            }
+        });
+
         return v;
     }
 
@@ -110,13 +163,19 @@ public class GetLocationRecordDialog extends DialogFragment {
 
     @Override
     public void onAttach(Activity activity) {
+        Log.i(classtag, "onAttach");
         super.onAttach(activity);
+        if(context == null){
+            context = activity;
+        }
         try {
             mListener = (OnGetLocationRecordFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        fmds = new FMDataSource(context);
+        fmds.open();
     }
 
     @Override
