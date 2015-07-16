@@ -27,6 +27,7 @@ public class SaveLocationDialog extends DialogFragment {
     private String name;
     private long datetime;
     private Button saveBtn;
+    private Button cancelBtn;
     private EditText editText;
 
     String classtag = SaveLocationDialog.class.getName();
@@ -63,6 +64,7 @@ public class SaveLocationDialog extends DialogFragment {
                              Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.activity_save_location_dialog, container, false);
         saveBtn = (Button)v.findViewById(R.id.saveButton);
+        cancelBtn = (Button)v.findViewById(R.id.cancelSaveLocationButton);
         editText = (EditText)v.findViewById(R.id.locationName);
 
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -94,6 +96,13 @@ public class SaveLocationDialog extends DialogFragment {
                         getDialog().dismiss();
                     }
                 }, 3600);
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
             }
         });
         getDialog().setTitle("Save This Location");

@@ -1,8 +1,10 @@
 package com.example.biyaosu.findme;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -39,6 +45,7 @@ public class GetLocationRecordDialog extends DialogFragment {
     private Button saveEditBtn;
     private Button deleteRecordBtn;
     private Button sendLocationBtn;
+    private Button dismissButton;
     Context context;
     private FMDataSource fmds;
     private SavedLocation selectedLocation;
@@ -82,6 +89,7 @@ public class GetLocationRecordDialog extends DialogFragment {
         cancelEditBtn = (Button)v.findViewById(R.id.cancelEditNameButton);
         deleteRecordBtn = (Button)v.findViewById(R.id.deleteRecordButton);
         sendLocationBtn = (Button)v.findViewById(R.id.sendSavedLocationButton);
+        dismissButton = (Button)v.findViewById(R.id.dismissSavedLocationButton);
         final View btnContainer = (View)v.findViewById(R.id.buttonContainer);
         savedLocationNameText.setText(recordName);
 
@@ -115,7 +123,25 @@ public class GetLocationRecordDialog extends DialogFragment {
                     selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
                 }
                 selectedLocation.setName(newName);
-                fmds.updateLocation(selectedLocation);
+                int rows = fmds.updateLocation(selectedLocation);
+
+                if(rows>0){
+                    Toast.makeText(context, "New Name Saved", Toast.LENGTH_LONG).show();
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    savedLocationNameText.setEnabled(false);
+                                    btnContainer.setVisibility(View.GONE);
+                                }
+                            });
+
+                        }
+                    }, 3600);
+                }
+
             }
         });
 
@@ -124,7 +150,20 @@ public class GetLocationRecordDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 Log.i(classtag, "deleteRecordBtn clicked");
-                fmds.deleteLocation(Integer.valueOf(recordId));
+                new AlertDialog.Builder(context)
+                        .setMessage("Delete this location?")
+                        .setNegativeButton("No", null)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int rows = fmds.deleteLocation(Integer.valueOf(recordId));
+                                if (rows > 0) {
+                                    getDialog().dismiss();
+                                }
+                            }
+                        })
+                        .show();
+
             }
         });
 
@@ -151,6 +190,15 @@ public class GetLocationRecordDialog extends DialogFragment {
             }
         });
 
+        //dismiss dialog
+        dismissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
+
+        getDialog().setTitle("Saved Location");
         return v;
     }
 
