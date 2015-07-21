@@ -10,7 +10,7 @@ import android.content.Intent;
 
 public class SplashActivity extends Activity {
 
-    private final int SPLASH_DISPLAY_LENGTH = 5000;
+    private final int SPLASH_DISPLAY_LENGTH = 3500;
     private FMDataSource fmds;
 
     @Override

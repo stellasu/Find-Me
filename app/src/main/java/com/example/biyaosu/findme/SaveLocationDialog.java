@@ -95,7 +95,7 @@ public class SaveLocationDialog extends DialogFragment {
                     public void run() {
                         getDialog().dismiss();
                     }
-                }, 3600);
+                }, 1500);
             }
         });
 

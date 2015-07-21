@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,10 +34,12 @@ public class GetLocationRecordDialog extends DialogFragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_RECORDID = "id";
     private static final String ARG_RECORDNAME = "name";
+    private static final String ARG_ITEMID = "itemId";
 
     // TODO: Rename and change types of parameters
     private String recordId;
     private String recordName;
+    private int itemId;
     private EditText savedLocationNameText;
     private Button enableEditBtn;
     private Button cancelEditBtn;
@@ -54,11 +55,12 @@ public class GetLocationRecordDialog extends DialogFragment {
 
     private OnGetLocationRecordFragmentInteractionListener mListener;
 
-    public static GetLocationRecordDialog newInstance(String param1, String param2) {
+    public static GetLocationRecordDialog newInstance(String param1, String param2, int param3) {
         GetLocationRecordDialog fragment = new GetLocationRecordDialog();
         Bundle args = new Bundle();
         args.putString(ARG_RECORDID, param1);
         args.putString(ARG_RECORDNAME, param2);
+        args.putInt(ARG_ITEMID, param3);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,6 +76,7 @@ public class GetLocationRecordDialog extends DialogFragment {
         if (getArguments() != null) {
             recordId = getArguments().getString(ARG_RECORDID);
             recordName = getArguments().getString(ARG_RECORDNAME);
+            itemId = getArguments().getInt(ARG_ITEMID);
         }
         selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
     }
@@ -139,7 +142,7 @@ public class GetLocationRecordDialog extends DialogFragment {
                             });
 
                         }
-                    }, 3600);
+                    }, 1500);
                 }
 
             }

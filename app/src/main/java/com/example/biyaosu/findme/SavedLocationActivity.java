@@ -1,5 +1,7 @@
 package com.example.biyaosu.findme;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,6 +9,7 @@ import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -55,8 +58,16 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
                 TextView v_name = (TextView)view.findViewById(R.id.recordName);
                 String locationName = v_name.getText().toString();
                 Log.i(classtag, "recordId: "+recordId);
-                getLocationDialog = new GetLocationRecordDialog().newInstance(recordId, locationName);
-                getLocationDialog.show(getFragmentManager(), "getLocationDialog");
+                if(fmds.getLocation(Integer.valueOf(recordId)) != null){
+                    getLocationDialog = new GetLocationRecordDialog().newInstance(recordId, locationName, position);
+                    getLocationDialog.show(getFragmentManager(), "getLocationDialog");
+                }else{
+                    Log.i(classtag, "item deleted");
+                    Intent intent = getIntent();
+                    finish();
+                    startActivity(intent);
+                }
+
             }
         });
     }
