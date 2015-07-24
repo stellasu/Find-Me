@@ -459,7 +459,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 HashMap<String, String> map = markerMap.get(marker);
                 String business_name = map.get("name");
                 String business_snippet = map.get("snippet");
-                String business_introduction = "Click to export address";
+                String business_introduction = map.get("businessCategories");
 
                 View infowindowView = getLayoutInflater().inflate(
                         R.layout.infowindow, null);

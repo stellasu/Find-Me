@@ -15,8 +15,8 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_splash">SplashActivity</string>
-    <string name="title_activity_save_location_dialog_fragment">SaveLocationDialogFragment</string>
-    <string name="title_activity_save_location_dialog">SaveLocationDialog</string>
-    <string name="title_activity_saved_location">SavedLocationActivity</string>
+    <string name="title_activity_save_location_dialog_fragment">Save Location</string>
+    <string name="title_activity_save_location_dialog">Save Location</string>
+    <string name="title_activity_saved_location">Saved Locations</string>
 
 </resources>

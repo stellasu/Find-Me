@@ -137,15 +137,29 @@ public class YelpAPI {
                 String name = business.optString("name");
                 String url = business.optString("url");
                 String snippet = business.optString("snippet_image_url");
+                JSONArray categories = business.optJSONArray("categories");
                 JSONObject location = business.optJSONObject("location");
                 JSONObject coordinate = location.optJSONObject("coordinate");
                 String businessLat = String.valueOf(coordinate.opt("latitude"));
                 String businessLng = String.valueOf(coordinate.opt("longitude"));
+                String businessCategories = "";
+                if(categories != null){
+                    for(int j=0; j<categories.length(); j++){
+                        JSONArray categoryItem = categories.optJSONArray(j);
+                        if(businessCategories == ""){
+                            businessCategories = businessCategories+categoryItem.optString(0);
+                        }else{
+                            businessCategories = businessCategories+", "+categoryItem.optString(0);
+                        }
+
+                    }
+                }
                 map.put("name", name);
                 map.put("url", url);
                 map.put("snippet", snippet);
                 map.put("businessLat", businessLat);
                 map.put("businessLng", businessLng);
+                map.put("businessCategories", businessCategories);
                 list.add(map);
             }
         } catch (JSONException e) {
