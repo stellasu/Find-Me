@@ -42,7 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener, SaveLocationDialog.OnSaveLocationFragmentInteractionListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, PromptDialogFragment.OnFragmentInteractionListener, SaveLocationDialog.OnSaveLocationFragmentInteractionListener, HelpDialog.OnHelpDialogFragmentInteractionListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LocationManager mLocationManager;
@@ -63,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private double droppedLng = 0;
     private UiSettings uiSettings;
     private HashMap<Marker, HashMap<String, String>> markerMap = new HashMap<>();
+    HelpDialog helpDialog;
     String classtag = MapsActivity.class.getName();
 
     @Override
@@ -378,6 +379,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
+    public void onHelpDialogFragmentInteraction(Uri uri) {
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -413,6 +418,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 return true;
             case R.id.actionbar_help:
                 Log.i(classtag, "help");
+                showHelpDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -556,6 +562,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     {
         Intent i = new Intent(this, SavedLocationActivity.class);
         startActivity(i);
+    }
+
+    public void showHelpDialog()
+    {
+        if(helpDialog == null){
+            helpDialog = new HelpDialog().newInstance();
+        }
+        helpDialog.show(getFragmentManager(), "help dialog");
     }
 
 
