@@ -21,6 +21,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Send By SMS"
+            android:id="@+id/sendSMS"
+            android:layout_gravity="center|top" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Route to this location"
             android:id="@+id/route"
             android:layout_gravity="center_horizontal"/>

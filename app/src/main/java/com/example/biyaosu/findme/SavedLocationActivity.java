@@ -20,7 +20,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 
-public class SavedLocationActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, GetLocationRecordDialog.OnGetLocationRecordFragmentInteractionListener{
+public class SavedLocationActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, GetLocationRecordDialog.OnGetLocationRecordFragmentInteractionListener,
+ SendSMSDialogFragment.OnSendSMSDialogFragmentInteractionListener {
 
     private FMDataSource fmds;
     private ListView listView;
@@ -100,6 +101,11 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
 
     @Override
     public void onGetLocationRecordFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void onSendSMSDialogFragmentInteraction(Uri uri) {
 
     }
 }

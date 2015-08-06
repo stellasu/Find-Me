@@ -21,7 +21,7 @@ import android.content.Intent;
  * Use the {@link PromptDialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PromptDialogFragment extends DialogFragment implements SaveLocationDialog.OnSaveLocationFragmentInteractionListener{
+public class PromptDialogFragment extends DialogFragment implements SaveLocationDialog.OnSaveLocationFragmentInteractionListener, SendSMSDialogFragment.OnSendSMSDialogFragmentInteractionListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -31,9 +31,11 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
     private String lat;
     private String lng;
     private Button emailBtn;
+    private Button smsBtn;
     private Button routeBtn;
     private Button saveBtn;
     private SaveLocationDialog saveLocationDialog;
+    private SendSMSDialogFragment sendSMSDialog;
     String classtag = PromptDialogFragment.class.getName();
 
     private OnFragmentInteractionListener mListener;
@@ -76,6 +78,7 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_prompt_dialog, container, false);
         emailBtn = (Button)v.findViewById(R.id.sendEmail);
+        smsBtn = (Button)v.findViewById(R.id.sendSMS);
         routeBtn = (Button)v.findViewById(R.id.route);
         saveBtn = (Button)v.findViewById(R.id.saveLocation);
 
@@ -93,7 +96,15 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
                 } catch (android.content.ActivityNotFoundException ex) {
                     Log.i(classtag, "no email client installed");
                 }
+            }
+        });
 
+        smsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(classtag, "send sms "+lat+" "+lng);
+                sendSMSDialog = new SendSMSDialogFragment().newInstance(lat, lng);
+                sendSMSDialog.show(getFragmentManager(), "send sms");
             }
         });
 
@@ -147,7 +158,6 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         mListener = null;
     }
 
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -166,6 +176,12 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
     public void onSaveLocationFragmentInteraction(Uri uri){
 
     }
+
+    @Override
+    public void onSendSMSDialogFragmentInteraction(Uri uri) {
+
+    }
+
 
 
 }

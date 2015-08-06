@@ -29,7 +29,7 @@ import java.util.TimerTask;
  * Use the {@link GetLocationRecordDialog#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GetLocationRecordDialog extends DialogFragment {
+public class GetLocationRecordDialog extends DialogFragment implements SendSMSDialogFragment.OnSendSMSDialogFragmentInteractionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_RECORDID = "id";
@@ -46,10 +46,12 @@ public class GetLocationRecordDialog extends DialogFragment {
     private Button saveEditBtn;
     private Button deleteRecordBtn;
     private Button sendLocationBtn;
+    private Button sendBySmsBtn;
     private Button dismissButton;
     Context context;
     private FMDataSource fmds;
     private SavedLocation selectedLocation;
+    private SendSMSDialogFragment sendSMSDialog;
 
     String classtag = GetLocationRecordDialog.class.getName();
 
@@ -92,6 +94,7 @@ public class GetLocationRecordDialog extends DialogFragment {
         cancelEditBtn = (Button)v.findViewById(R.id.cancelEditNameButton);
         deleteRecordBtn = (Button)v.findViewById(R.id.deleteRecordButton);
         sendLocationBtn = (Button)v.findViewById(R.id.sendSavedLocationButton);
+        sendBySmsBtn = (Button)v.findViewById(R.id.sendSavedLocationBySmsButton);
         dismissButton = (Button)v.findViewById(R.id.dismissSavedLocationButton);
         final View btnContainer = (View)v.findViewById(R.id.buttonContainer);
         savedLocationNameText.setText(recordName);
@@ -193,6 +196,21 @@ public class GetLocationRecordDialog extends DialogFragment {
             }
         });
 
+        //send by sms
+        sendBySmsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedLocation == null){
+                    selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
+                }
+                String lat = String.valueOf(selectedLocation.getLatitude());
+                String lng = String.valueOf(selectedLocation.getLongitude());
+                Log.i(classtag, "send sms "+lat+" "+lng);
+                sendSMSDialog = new SendSMSDialogFragment().newInstance(lat, lng);
+                sendSMSDialog.show(getFragmentManager(), "send sms");
+            }
+        });
+
         //dismiss dialog
         dismissButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -233,6 +251,11 @@ public class GetLocationRecordDialog extends DialogFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onSendSMSDialogFragmentInteraction(Uri uri) {
+
     }
 
     /**

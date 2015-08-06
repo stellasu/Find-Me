@@ -65,9 +65,17 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send this location"
+            android:text="Send by email"
             android:id="@+id/sendSavedLocationButton"
             android:layout_gravity="center_horizontal"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send by SMS"
+            android:id="@+id/sendSavedLocationBySmsButton"
+            android:layout_gravity="center_horizontal"/>
+
 
         <Button
             android:layout_width="wrap_content"
