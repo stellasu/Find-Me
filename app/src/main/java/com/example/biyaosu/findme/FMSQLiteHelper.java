@@ -39,7 +39,6 @@ public class FMSQLiteHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i(classtag, "create table: "+CREATE_TABLE);
         db.execSQL(CREATE_TABLE);
     }
 

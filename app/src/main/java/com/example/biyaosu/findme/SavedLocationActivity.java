@@ -58,12 +58,10 @@ public class SavedLocationActivity extends FragmentActivity implements LoaderMan
                 String recordId = v_id.getText().toString();
                 TextView v_name = (TextView)view.findViewById(R.id.recordName);
                 String locationName = v_name.getText().toString();
-                Log.i(classtag, "recordId: "+recordId);
                 if(fmds.getLocation(Integer.valueOf(recordId)) != null){
                     getLocationDialog = new GetLocationRecordDialog().newInstance(recordId, locationName, position);
                     getLocationDialog.show(getFragmentManager(), "getLocationDialog");
                 }else{
-                    Log.i(classtag, "item deleted");
                     Intent intent = getIntent();
                     finish();
                     startActivity(intent);

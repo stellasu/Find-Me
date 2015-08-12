@@ -85,7 +85,6 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         emailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "send Email "+lat+" "+lng);
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("message/rfc822");
                 i.putExtra(Intent.EXTRA_SUBJECT, "Find me here!");
@@ -102,7 +101,6 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         smsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "send sms "+lat+" "+lng);
                 sendSMSDialog = new SendSMSDialogFragment().newInstance(lat, lng);
                 sendSMSDialog.show(getFragmentManager(), "send sms");
             }
@@ -111,7 +109,6 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         routeBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "route");
                 Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?daddr="+lat+","+lng));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -123,7 +120,6 @@ public class PromptDialogFragment extends DialogFragment implements SaveLocation
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "save this location");
                 saveLocationDialog = new SaveLocationDialog().newInstance(lat, lng);
                 saveLocationDialog.show(getFragmentManager(), "save location");
             }

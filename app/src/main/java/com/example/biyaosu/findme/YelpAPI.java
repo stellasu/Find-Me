@@ -103,10 +103,7 @@ public class YelpAPI {
      */
     private String sendRequestAndGetResponse(OAuthRequest request)
     {
-        Log.i(classtag, "Querying " + request.getCompleteUrl() + " ...");
         this.service.signRequest(this.accessToken, request);
-        Log.i(classtag, "request: "+request.toString());
-
         Response response = request.send();
         return response.getBody();
     }
@@ -124,7 +121,6 @@ public class YelpAPI {
 
         String searchResponseJSON =
                 searchForBusinessesByLocation(lat, lng);
-        Log.i(classtag, "searchResponseJson: "+searchResponseJSON);
 
         JSONObject response = null;
         try {

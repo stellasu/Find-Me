@@ -73,7 +73,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(classtag, "onCreate");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             recordId = getArguments().getString(ARG_RECORDID);
@@ -103,7 +102,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
         enableEditBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "enableEditBtn clicked");
                 savedLocationNameText.setEnabled(true);
                 btnContainer.setVisibility(View.VISIBLE);
             }
@@ -113,7 +111,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
         cancelEditBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "cancelEditBtn clicked");
                 savedLocationNameText.setEnabled(false);
                 btnContainer.setVisibility(View.GONE);
             }
@@ -123,7 +120,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
         saveEditBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "saveEditBtn clicked");
                 String newName = savedLocationNameText.getText().toString();
                 if(selectedLocation == null){
                     selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
@@ -155,7 +151,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
         deleteRecordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "deleteRecordBtn clicked");
                 new AlertDialog.Builder(context)
                         .setMessage("Delete this location?")
                         .setNegativeButton("No", null)
@@ -177,7 +172,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
         sendLocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "sendLocationBtn clicked");
                 if(selectedLocation == null){
                     selectedLocation = fmds.getLocation(Integer.valueOf(recordId));
                 }
@@ -205,7 +199,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
                 }
                 String lat = String.valueOf(selectedLocation.getLatitude());
                 String lng = String.valueOf(selectedLocation.getLongitude());
-                Log.i(classtag, "send sms "+lat+" "+lng);
                 sendSMSDialog = new SendSMSDialogFragment().newInstance(lat, lng);
                 sendSMSDialog.show(getFragmentManager(), "send sms");
             }
@@ -232,7 +225,6 @@ public class GetLocationRecordDialog extends DialogFragment implements SendSMSDi
 
     @Override
     public void onAttach(Activity activity) {
-        Log.i(classtag, "onAttach");
         super.onAttach(activity);
         if(context == null){
             context = activity;

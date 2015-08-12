@@ -55,7 +55,6 @@ public class SaveLocationDialog extends DialogFragment {
         if(getArguments() != null){
             lat = getArguments().getString(ARG_LAT);
             lng = getArguments().getString(ARG_LNG);
-            Log.i(classtag, "parameters: "+lat+". "+lng);
         }
     }
 
@@ -70,7 +69,6 @@ public class SaveLocationDialog extends DialogFragment {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(classtag, "saveBtn clicked");
                 name = editText.getText().toString();
                 datetime = System.currentTimeMillis();
                 //dismiss keyboard after inputting
@@ -85,7 +83,6 @@ public class SaveLocationDialog extends DialogFragment {
                 location.setName(name);
                 location.setUpdated(datetime);
                 long id = fmds.saveLocation(location);
-                Log.i(classtag, "insertId: "+id);
 
                 if(id>0){
                     Toast.makeText(context, "Location Saved", Toast.LENGTH_LONG).show();

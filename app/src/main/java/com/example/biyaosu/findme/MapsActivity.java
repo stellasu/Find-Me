@@ -88,14 +88,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             lat = location.getLatitude();
             lng = location.getLongitude();
         }
-        Log.i(classtag, "onCreate lat: " + lat + " lng: " + lng);
 
     }
 
     @Override
     protected void onResume()
     {
-        Log.i(classtag, "onResume");
         super.onResume();
 
         if(provider != null)
@@ -108,7 +106,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             lat = location.getLatitude();
             lng = location.getLongitude();
         }
-        Log.i(classtag, "onResume lat: "+lat+" lng: "+lng);
 
         setUpMapIfNeeded();
     }
@@ -161,7 +158,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * method in {@link #onResume()} to guarantee that it will be called.
      */
     private void setUpMapIfNeeded() {
-        Log.i(classtag, "setUpMapIfNeeded");
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -183,7 +179,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      */
     private void setUpMap()
     {
-        Log.i(classtag, "setUpMap lat: "+lat+" lng: "+lng);
         mMap.clear();
         currentLatLng = new LatLng(lat, lng);
         if(currentLocationMarker != null){
@@ -204,7 +199,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 LatLng markerLatlng = marker.getPosition();
                 String markerLat = String.valueOf(markerLatlng.latitude);
                 String markerLng = String.valueOf(markerLatlng.longitude);
-                Log.i(classtag, "exported latlng: "+markerLat+" "+markerLng);
                 prompt = new PromptDialogFragment().newInstance(markerLat, markerLng);
 
                 prompt.show(getFragmentManager(), "markerLocation");
@@ -212,7 +206,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         });
 
         if(hasDroppedPin){
-            Log.i(classtag, "hasDroppedPin true");
             if(droppedPin != null){
                 Log.i(classtag, "droppedPin not null");
                 droppedPin = mMap.addMarker(new MarkerOptions()
@@ -235,7 +228,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng clickedLatLng) {
-                Log.i(classtag, "setOnMapLongClickListener");
                 hasDroppedPin = true;
                 if(droppedPin != null){
                     Log.i(classtag, "droppedPin not null");
@@ -304,7 +296,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     //add yelp business markers to the map
     private void setUpMapWithYelpLocation()
     {
-        Log.i(classtag, "setUpMapWithYelpLocation lat: "+lat+" lng: "+lng);
         setUpMap();
         if(hasYelpData && yelpList.isEmpty()){
             Thread thread = new Thread(new Runnable(){
@@ -349,7 +340,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i("Message: ","Location changed, " + location.getAccuracy() + " , " + location.getLatitude()+ "," + location.getLongitude());
         lat = location.getLatitude();
         lng = location.getLongitude();
         mLocationManager.removeUpdates(this);
@@ -402,28 +392,23 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     {
         switch(item.getItemId()){
             case R.id.display_yelp:
-                Log.i(classtag, "display yelp locations");
                 hasYelpData = true;
                 setUpMapWithYelpLocation();
                 return true;
             case R.id.clear_yelp:
-                Log.i(classtag, "clear yelp locations");
                 hasYelpData = false;
                 clearYelpMarkers();
                 return true;
             case R.id.removeDropped:
-                Log.i(classtag, "remove dropped pin");
                 removeDroppedPin();
                 return true;
             case R.id.savedLocations:
-                Log.i(classtag, "see saved locations");
                 FMDataSource fmds = new FMDataSource(getApplicationContext());
                 fmds.open();
                 fmds.listAllLocations();
                 seeSavedLocations();
                 return true;
             case R.id.actionbar_help:
-                Log.i(classtag, "help");
                 showHelpDialog();
                 return true;
             default:
@@ -434,7 +419,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     //clear all yelp markers, leave currentLocationMarker and droppedPin
     public void clearYelpMarkers()
     {
-        Log.i(classtag, "clearYelpMarkers");
         mMap.clear();
         markerMap.clear();
         yelpList.clear();
@@ -445,7 +429,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     //remove dropped pin
     public void removeDroppedPin()
     {
-        Log.i(classtag, "removeDroppedPin");
         hasDroppedPin = false;
         if(droppedPin != null){
             Log.i(classtag, "droppedPin not null");
@@ -507,11 +490,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Bitmap bMap = null;
             String url = urls[0];
             bMap = getBitmapFromURL(url);
-            if(bMap == null){
-                Log.i(classtag, "no bMap");
-            }else{
-                Log.i(classtag, "has bMap");
-            }
             return bMap;
         }
 
@@ -527,7 +505,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public Bitmap getBitmapFromURL(String src)
     {
         try {
-            Log.i(classtag, "image url: "+src);
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -543,12 +520,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     private void saveImageToSD(Bitmap bmp)
     {
-        Log.i(classtag, "saveImageToSD");
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = Environment.getExternalStorageDirectory()
                 + File.separator + System.currentTimeMillis() + "downloaded.jpg";
-        Log.i(classtag, "path: "+path);
         File file = new File(path);
         try {
             file.createNewFile();

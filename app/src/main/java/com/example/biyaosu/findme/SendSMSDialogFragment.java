@@ -74,7 +74,6 @@ public class SendSMSDialogFragment extends DialogFragment {
             lat = getArguments().getString(ARG_LAT);
             lng = getArguments().getString(ARG_LNG);
         }
-        Log.i(classtag, "parameters: " + lat + ". " + lng);
     }
 
     @Override
@@ -95,7 +94,6 @@ public class SendSMSDialogFragment extends DialogFragment {
                 phoneNumber = String.valueOf(phoneNumberText.getText());
                 SmsManager smsManager = SmsManager.getDefault();
                 String textToSend = String.valueOf(contentText.getText());
-                Log.i(classtag, "phoneNumber: "+phoneNumber+" textToSend: "+textToSend);
                 boolean flag = true;
                 try{
                     smsManager.sendTextMessage(phoneNumber, null, textToSend, null, null);

@@ -33,7 +33,6 @@ public class FMDataSource {
 
     //sorted by updated time
     public ArrayList<SavedLocation> listAllLocations(){
-        Log.i(classtag, "listAllLocations");
         ArrayList<SavedLocation> locations = new ArrayList<SavedLocation>();
 
         Cursor cursor = this.getAllRecords();
@@ -48,8 +47,6 @@ public class FMDataSource {
                 location.setUpdated(cursor.getLong(4)); //updated
                 location.setTop(cursor.getInt(5)); //top
                 locations.add(location);
-                Log.i(classtag, "id: "+cursor.getInt(0));
-                Log.i(classtag, "name: "+cursor.getString(1));
             }while(cursor.moveToNext());
         }
         return locations;
@@ -63,13 +60,11 @@ public class FMDataSource {
 
     public Cursor getRecordsForList(){
         String query = "SELECT * FROM " + FMSQLiteHelper.TABLE_NAME;
-        Log.i(classtag, "query: "+query);
         Cursor cursor = db.rawQuery(query, null);
         return cursor;
     }
 
     public long saveLocation(SavedLocation location){
-        Log.i(classtag, "saveLocation");
         ContentValues values = new ContentValues();
         values.put(FMSQLiteHelper.COLUMN_NAME, location.getName());
         values.put(FMSQLiteHelper.COLUMN_LATITUDE, location.getLatitude());
@@ -110,7 +105,6 @@ public class FMDataSource {
     }
 
     public int updateLocation(SavedLocation location){
-        Log.i(classtag, "updateLocation");
         ContentValues values = new ContentValues();
         values.put(FMSQLiteHelper.COLUMN_NAME, location.getName());
         values.put(FMSQLiteHelper.COLUMN_LATITUDE, location.getLatitude());
@@ -123,13 +117,11 @@ public class FMDataSource {
     }
 
     public int deleteLocation(int id){
-        Log.i(classtag, "deleteLocation");
         //return row affected or 0
         return db.delete(FMSQLiteHelper.TABLE_NAME, FMSQLiteHelper.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
     }
 
     public int pushToTop(SavedLocation location){
-        Log.i(classtag, "pushToTop");
         if(location.getTop() == 1){
             return 1;
         }else{
@@ -146,7 +138,6 @@ public class FMDataSource {
     }
 
     public int removeFromTop(SavedLocation location){
-        Log.i(classtag, "removeFromTop");
         if(location.getTop() == 0){
             return 1;
         }else{
